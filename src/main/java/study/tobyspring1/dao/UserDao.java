@@ -5,27 +5,29 @@ import study.tobyspring1.domain.User;
 
 import java.sql.*;
 
-public class UserDao {
+public abstract class UserDao {
 
-    @Transactional
-    public static void main(String[] args) throws SQLException {
-        UserDao dao = new UserDao();
-
-        User user = new User();
-        user.setId("id");
-        user.setName("테스트");
-        user.setPassword("password");
-
-        dao.add(user);
-
-        System.out.println(user.getId() + " 등록 성공");
-
-
-    }
+//    @Transactional
+//    public static void main(String[] args) throws SQLException {
+//        UserDao dao = new UserDao();
+//
+//        User user = new User();
+//        user.setId("id");
+//        user.setName("테스트");
+//        user.setPassword("password");
+//
+//        dao.add(user);
+//
+//        System.out.println(user.getId() + " 등록 성공");
+//
+//        User user2 = dao.get(user.getId());
+//        System.out.println(user2.getName());
+//        System.out.println(user2.getPassword());
+//        System.out.println(user2.getId());
+//    }
 
     public void add(User user) throws SQLException {
-        Connection c = DriverManager.getConnection(
-                "jdbc:h2:tcp://localhost/~/tobyspring", "sa", "");
+        Connection c = getConnection();
         PreparedStatement ps = c.prepareStatement(
                 "insert into users(id, name, password) values(?,?,?)"
         );
@@ -40,8 +42,7 @@ public class UserDao {
     }
 
     public User get(String id) throws SQLException {
-        Connection c = DriverManager.getConnection(
-                "jdbc:h2:tcp://localhost/~/tobyspring", "sa", "");
+        Connection c = getConnection();
         PreparedStatement ps = c.prepareStatement(
                 "select * from users where id = ?"
         );
@@ -60,4 +61,13 @@ public class UserDao {
 
         return user;
     }
+
+    public abstract Connection getConnection() throws SQLException;
+
+//    private Connection getConnection() throws SQLException {
+//        Connection c = DriverManager.getConnection(
+//                "jdbc:h2:tcp://localhost/~/tobyspring", "sa", "");
+//        return c;
+//    }
 }
+
