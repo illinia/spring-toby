@@ -3,9 +3,9 @@ package study.tobyspring1.dao;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class NUserDao extends UserDao {
+public class DConnectionMaker implements ConnectionMaker {
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection makeConnection() throws SQLException {
         return null;
     }
 }
