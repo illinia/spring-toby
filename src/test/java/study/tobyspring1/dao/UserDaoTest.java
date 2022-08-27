@@ -1,56 +1,80 @@
 package study.tobyspring1.dao;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.tobyspring1.domain.User;
 
 import java.sql.SQLException;
 
+import static org.assertj.core.api.Assertions.*;
+
 @SpringBootTest
 @Transactional
 class UserDaoTest {
 
-    @Test
-    public void test1() {
-        DaoFactory factory = new DaoFactory();
-        UserDao dao1 = factory.userDao();
-        UserDao dao2 = factory.userDao();
+    @Autowired
+    private UserDao dao;
+    private User user1;
+    private User user2;
+    private User user3;
 
-        System.out.println(dao1);
-        System.out.println(dao2);
+    @BeforeEach
+    public void setUp() {
+        this.user1 = new User("test1", "테스트1", "spring1");
+        this.user2 = new User("test2", "테스트2", "spring2");
+        this.user3 = new User("test3", "테스트3", "spring3");
 
-        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-
-        UserDao dao3 = context.getBean("userDao", UserDao.class);
-        UserDao dao4 = context.getBean("userDao", UserDao.class);
-
-        System.out.println(dao3);
-        System.out.println(dao4);
+        System.out.println(this);
     }
 
     @Test
-    public void test() throws SQLException {
+    public void addAndGet() throws SQLException {
+        dao.deleteAll();
+        assertThat(dao.getCount()).isEqualTo(0);
 
-        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+        dao.add(user1);
+        dao.add(user2);
+        assertThat(dao.getCount()).isEqualTo(2);
 
-        UserDao dao = context.getBean("userDao", UserDao.class);
+        User userGet1 = dao.get(user1.getId());
+        assertThat(userGet1.getName()).isEqualTo(user1.getName());
+        assertThat(userGet1.getPassword()).isEqualTo(user1.getPassword());
 
-        User user = new User();
-        user.setId("id");
-        user.setName("테스트");
-        user.setPassword("password");
+        User userGet2 = dao.get(user2.getId());
+        assertThat(userGet2.getName()).isEqualTo(user2.getName());
+        assertThat(userGet2.getPassword()).isEqualTo(user2.getPassword());
+    }
 
-        dao.add(user);
+    @Test
+    public void count() throws SQLException {
+        dao.deleteAll();
+        assertThat(dao.getCount()).isEqualTo(0);
 
-        System.out.println(user.getId() + " 등록 성공");
+        dao.add(user1);
+        assertThat(dao.getCount()).isEqualTo(1);
 
-        User user2 = dao.get(user.getId());
-        System.out.println(user2.getName());
-        System.out.println(user2.getPassword());
-        System.out.println(user2.getId());
+        dao.add(user2);
+        assertThat(dao.getCount()).isEqualTo(2);
+
+        dao.add(user3);
+        assertThat(dao.getCount()).isEqualTo(3);
+
+    }
+
+    @Test
+    public void getUserFailure() throws SQLException {
+        dao.deleteAll();
+        assertThat(dao.getCount()).isEqualTo(0);
+
+        assertThatThrownBy(() -> dao.get("unknown_id"))
+                .isInstanceOf(EmptyResultDataAccessException.class);
     }
 }
