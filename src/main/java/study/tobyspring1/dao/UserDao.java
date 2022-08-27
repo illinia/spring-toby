@@ -4,15 +4,16 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 import study.tobyspring1.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.*;
 
 
 public class UserDao {
 
-    private ConnectionMaker connectionMaker;
+    private DataSource dataSource;
 
-    public void setConnectionMaker(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     //    public UserDao(ConnectionMaker connectionMaker) {
@@ -20,7 +21,7 @@ public class UserDao {
 //    }
 
     public void add(User user) throws SQLException {
-        Connection c = connectionMaker.makeConnection();
+        Connection c = dataSource.getConnection();
         PreparedStatement ps = c.prepareStatement(
                 "insert into users(id, name, password) values(?,?,?)"
         );
@@ -35,7 +36,7 @@ public class UserDao {
     }
 
     public User get(String id) throws SQLException {
-        Connection c = connectionMaker.makeConnection();
+        Connection c = dataSource.getConnection();
         PreparedStatement ps = c.prepareStatement(
                 "select * from users where id = ?"
         );
@@ -60,18 +61,12 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection c = connectionMaker.makeConnection();
-
-        PreparedStatement ps = c.prepareStatement("delete from users");
-
-        ps.executeUpdate();
-
-        ps.close();
-        c.close();
+        DeleteAllStatement st = new DeleteAllStatement();
+        jdbcContextWithStatementStrategy(st);
     }
 
     public int getCount() throws SQLException {
-        Connection c = connectionMaker.makeConnection();
+        Connection c = dataSource.getConnection();
 
         PreparedStatement ps = c.prepareStatement("select count(*) from users");
 
@@ -84,6 +79,32 @@ public class UserDao {
         c.close();
 
         return count;
+    }
+
+    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = dataSource.getConnection();
+
+            ps = stmt.makePreparedStatement(c);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {}
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 
 //    public abstract Connection getConnection() throws SQLException;
