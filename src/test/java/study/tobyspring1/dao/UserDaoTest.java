@@ -1,14 +1,12 @@
 package study.tobyspring1.dao;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.tobyspring1.domain.User;
 
@@ -22,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
 class UserDaoTest {
 
     @Autowired
-    private UserDao dao;
+    private UserDaoJdbc dao;
     private User user1;
     private User user2;
     private User user3;
@@ -103,6 +101,17 @@ class UserDaoTest {
         checkSameUser(user1, users3.get(0));
         checkSameUser(user2, users3.get(1));
         checkSameUser(user3, users3.get(2));
+    }
+
+    @Test
+    public void duplicateKey() {
+        dao.deleteAll();
+
+        dao.add(user1);
+//        dao.add(user1);
+        assertThatThrownBy(() -> dao.add(user1))
+                .isInstanceOf(DuplicateKeyException.class);
+
     }
 
     private void checkSameUser(User user1, User user2) {
