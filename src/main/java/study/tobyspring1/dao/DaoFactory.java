@@ -1,19 +1,20 @@
 package study.tobyspring1.dao;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 import javax.sql.DataSource;
 
-//@Configuration
+@Configuration
 public class DaoFactory {
 
     @Bean
     public DataSource dataSource() {
-        SimpleDriverDataSource dataSource = new SimpleDriverDataSource ();
+        HikariDataSource dataSource = new HikariDataSource();
 
-        dataSource.setUrl("jdbc:h2:tcp://localhost/~/tobyspring");
+        dataSource.setJdbcUrl("jdbc:h2:tcp://localhost/~/tobyspring");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
 
