@@ -1,98 +1,58 @@
 package study.tobyspring1.dao;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import study.tobyspring1.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.List;
 
 
 public class UserDao {
 
-//    ConnectionMaker connectionMaker;
-//
-//        public UserDao( connectionMaker) {
-//        this.connectionMaker = connectionMaker;
-//    }
+    private JdbcTemplate jdbcTemplate;
 
-    private DataSource dataSource;
-    private JdbcContext jdbcContext;
-
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcContext = new JdbcContext();
-
-        this.jdbcContext.setDataSource(dataSource);
-
-        this.dataSource = dataSource;
-    }
-
-    public void add(final User user) throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values(?,?,?)");
-
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-
-                return ps;
-            }
-        });
-    }
-
-    public User get(String id) throws SQLException {
-        Connection c = dataSource.getConnection();
-        PreparedStatement ps = c.prepareStatement(
-                "select * from users where id = ?"
-        );
-        ps.setString(1, id);
-
-        ResultSet rs = ps.executeQuery();
-        User user = null;
-        if (rs.next()) {
-            user = new User();
+    private RowMapper<User> userMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
             user.setId(rs.getString("id"));
             user.setName(rs.getString("name"));
             user.setPassword(rs.getString("password"));
+            return user;
         }
+    };
 
-        rs.close();
-        ps.close();
-        c.close();
-
-        if (user == null) throw new EmptyResultDataAccessException(1);
-
-        return user;
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void deleteAll() throws SQLException {
-        this.jdbcContext.executeSql("delete from users");
+    public void add(final User user) {
+        this.jdbcTemplate.update("insert into users(id, name, password) values(?,?,?)",
+                user.getId(), user.getName(), user.getPassword());
     }
 
-    public int getCount() throws SQLException {
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("select count(*) from users");
-
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int count = rs.getInt(1);
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        return count;
+    public User get(String id) {
+        return this.jdbcTemplate.queryForObject("select * from users where id = ?",
+                new Object[]{id}, this.userMapper);
     }
 
+    public void deleteAll() {
+        this.jdbcTemplate.update("delete from users");
+    }
 
+    public int getCount() {
+        return this.jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
+    }
 
-//    public abstract Connection getConnection() throws SQLException;
+    public List<User> getAll() {
+        return this.jdbcTemplate.query("select * from users order by id", this.userMapper);
+    }
 
-//    private Connection getConnection() throws SQLException {
-//        Connection c = DriverManager.getConnection(
-//                "jdbc:h2:tcp://localhost/~/tobyspring", "sa", "");
-//        return c;
-//    }
 }
 
