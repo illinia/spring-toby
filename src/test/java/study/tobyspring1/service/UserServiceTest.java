@@ -102,8 +102,8 @@ class UserServiceTest {
             System.out.println("upgradeAllOrNothing " + e);
         }
 
-//        userDao.getAll().stream().forEach(user -> System.out.println(user.toString()));
-//        checkLevelUpgraded(users.get(1), false);
+        userDao.getAll().stream().forEach(user -> System.out.println(user.toString()));
+        checkLevelUpgraded(users.get(1), false);
     }
 
     @Test

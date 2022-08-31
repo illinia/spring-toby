@@ -17,7 +17,7 @@ public class UserServiceConfiguration {
 
     public NameMatchMethodPointcut nameMatchMethodPointcut() {
         NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
-        pointcut.setMappedName("");
+        pointcut.setMappedName("upgr*");
         return pointcut;
     }
 

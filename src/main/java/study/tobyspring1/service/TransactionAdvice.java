@@ -11,6 +11,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @Component
 public class TransactionAdvice implements MethodInterceptor {
+    @Autowired
     PlatformTransactionManager transactionManager;
 
     @Override
