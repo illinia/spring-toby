@@ -7,15 +7,15 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import study.tobyspring1.domain.User;
 
-@Component("userService")
+//@Component("userService")
 public class UserServiceTx implements UserService {
     @Autowired
-    UserService userServiceImpl;
+    UserService userService;
     @Autowired
     PlatformTransactionManager transactionManager;
 
     public void setUserService(UserService userService) {
-        this.userServiceImpl = userService;
+        this.userService = userService;
     }
 
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
@@ -24,7 +24,7 @@ public class UserServiceTx implements UserService {
 
     @Override
     public void add(User user) {
-        userServiceImpl.add(user);
+        this.userService.add(user);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class UserServiceTx implements UserService {
         TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
 
         try {
-            userServiceImpl.upgradeLevels();
+            userService.upgradeLevels();
 
             this.transactionManager.commit(status);
         } catch (RuntimeException e) {
