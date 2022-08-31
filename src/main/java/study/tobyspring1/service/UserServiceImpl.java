@@ -4,16 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import study.tobyspring1.dao.UserDao;
 import study.tobyspring1.domain.Level;
 import study.tobyspring1.domain.User;
 
 import java.util.List;
 
-@Service
+@Service(value = "userServiceImpl")
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
@@ -37,6 +34,7 @@ public class UserServiceImpl implements UserService {
             List<User> users = userDao.getAll();
             for (User user : users) {
                 if (canUpgradeLevel(user)) {
+                    System.out.println("upgradeLevels : " + user);
                     upgradeLevel(user);
                 }
             }

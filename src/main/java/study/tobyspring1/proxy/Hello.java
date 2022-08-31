@@ -1,4 +1,4 @@
-package study.tobyspring1.proxyClass;
+package study.tobyspring1.proxy;
 
 public interface Hello {
     String sayHello(String name);
