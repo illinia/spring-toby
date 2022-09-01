@@ -1,4 +1,4 @@
-package study.tobyspring1.proxy;
+package study.tobyspring1.jdk.proxy;
 
 public class HelloTarget implements Hello{
     @Override

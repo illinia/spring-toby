@@ -1,4 +1,4 @@
-package study.tobyspring1.proxy;
+package study.tobyspring1.jdk.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

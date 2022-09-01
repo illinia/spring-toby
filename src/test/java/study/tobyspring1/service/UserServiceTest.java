@@ -3,16 +3,12 @@ package study.tobyspring1.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.PlatformTransactionManager;
 import study.tobyspring1.dao.UserDao;
 import study.tobyspring1.domain.Level;
 import study.tobyspring1.domain.User;
@@ -33,13 +29,9 @@ class UserServiceTest {
     @Autowired
     UserService userService;
     @Autowired
+    UserService testUserService;
+    @Autowired
     UserDao userDao;
-    @Autowired
-    PlatformTransactionManager transactionManager;
-    @Autowired
-    MailSender mailSender;
-    @Autowired
-    ApplicationContext context;
 
     List<User> users;
 
@@ -80,15 +72,14 @@ class UserServiceTest {
     }
 
     @Test
-    @DirtiesContext
     public void upgradeAllOrNothing() throws Exception {
-        TestUserService testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(userDao);
-        testUserService.setMailSender(mailSender);
-
-        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
-        txProxyFactoryBean.setTarget(testUserService);
-        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
+//        TestUserServiceImpl testUserService = new TestUserServiceImpl(users.get(3).getId());
+//        testUserService.setUserDao(userDao);
+//        testUserService.setMailSender(mailSender);
+//
+//        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
+//        txProxyFactoryBean.setTarget(testUserService);
+//        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
         userDao.deleteAll();
         for (User user : users) {
@@ -96,7 +87,7 @@ class UserServiceTest {
         }
 
         try {
-            txUserService.upgradeLevels();
+            this.testUserService.upgradeLevels();
             fail("TestUserServiceException expected");
         } catch (TestUserServiceException e) {
             System.out.println("upgradeAllOrNothing " + e);
@@ -155,6 +146,11 @@ class UserServiceTest {
         assertThat(mailMessages.get(1).getTo()[0]).isEqualTo(users.get(3).getEmail());
     }
 
+//    @Test
+//    public void advisorAutoProxyCreator() {
+//        assertThat(testUserService).isOfAnyClassIn(java.lang.reflect.Proxy.class);
+//    }
+
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if (upgraded) {
@@ -171,16 +167,12 @@ class UserServiceTest {
     }
 
     static class TestUserService extends UserServiceImpl {
-        private String id;
-
-        private TestUserService(String id) {
-            this.id = id;
-        }
+        private String id = "test2";
 
         @Override
         protected void upgradeLevel(User user) {
-            if (user.getId().equals(this.id)) throw new TestUserServiceException();
             super.upgradeLevel(user);
+            if (user.getId().equals(this.id)) throw new TestUserServiceException();
         }
     }
 

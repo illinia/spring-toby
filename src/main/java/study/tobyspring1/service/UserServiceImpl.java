@@ -10,7 +10,7 @@ import study.tobyspring1.domain.User;
 
 import java.util.List;
 
-@Service(value = "userServiceImpl")
+@Service("userService")
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;

@@ -10,4 +10,9 @@ public class UserServiceTestConfiguration {
         DummyMailSender mailSender = new DummyMailSender();
         return mailSender;
     }
+
+    @Bean("testUserService")
+    public UserService testUserService() {
+        return new UserServiceTest.TestUserService();
+    }
 }
