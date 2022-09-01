@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.transaction.annotation.Transactional;
 import study.tobyspring1.dao.UserDao;
 import study.tobyspring1.domain.Level;
 import study.tobyspring1.domain.User;
@@ -151,6 +152,11 @@ class UserServiceTest {
 //        assertThat(testUserService).isOfAnyClassIn(java.lang.reflect.Proxy.class);
 //    }
 
+    @Test
+    public void readOnlyTransactionAttribute() {
+        testUserService.getAll();
+    }
+
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if (upgraded) {
@@ -173,6 +179,16 @@ class UserServiceTest {
         protected void upgradeLevel(User user) {
             super.upgradeLevel(user);
             if (user.getId().equals(this.id)) throw new TestUserServiceException();
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<User> getAll() {
+            for (User user: super.getAll()) {
+                super.update(user);
+                System.out.println("getAll " + user);
+            }
+            return null;
         }
     }
 

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import study.tobyspring1.dao.UserDao;
 import study.tobyspring1.domain.Level;
 import study.tobyspring1.domain.User;
@@ -11,6 +12,7 @@ import study.tobyspring1.domain.User;
 import java.util.List;
 
 @Service("userService")
+@Transactional
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
@@ -44,6 +46,29 @@ public class UserServiceImpl implements UserService {
         if (user.getLevel() == null) user.setLevel(Level.BASIC);
         userDao.add(user);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public User get(String id) {
+        return userDao.get(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<User> getAll() {
+        return userDao.getAll();
+    }
+
+    @Override
+    public void deleteAll() {
+        userDao.deleteAll();
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
+    }
+
 
     private boolean canUpgradeLevel(User user) {
         Level currentLevel = user.getLevel();

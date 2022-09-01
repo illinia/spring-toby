@@ -14,8 +14,8 @@ import study.tobyspring1.jdk.proxy.NameMatchClassMethodPointcut;
 
 @Configuration
 public class ServiceConfiguration {
-    @Autowired
-    TransactionAdvice transactionAdvice;
+//    @Autowired
+//    TransactionAdvice transactionAdvice;
 //    @Autowired
 //    UserServiceImpl userServiceImpl;
 
@@ -25,20 +25,20 @@ public class ServiceConfiguration {
 //        return pointcut;
 //    }
 //
-    @Bean
-    public DefaultPointcutAdvisor defaultPointcutAdvisor() {
-        DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
-        advisor.setAdvice(transactionAdvice);
-        advisor.setPointcut(aspectJExpressionPointcut());
-        return advisor;
-    }
+//    @Bean
+//    public DefaultPointcutAdvisor defaultPointcutAdvisor() {
+//        DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor();
+//        advisor.setAdvice(transactionAdvice);
+//        advisor.setPointcut(aspectJExpressionPointcut());
+//        return advisor;
+//    }
 
 //    @Bean("transactionPointcut")
-    public AspectJExpressionPointcut aspectJExpressionPointcut() {
-        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
-        pointcut.setExpression("execution(* *..*ServiceImpl.upgrade*(..))");
-        return pointcut;
-    }
+//    public AspectJExpressionPointcut aspectJExpressionPointcut() {
+//        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+//        pointcut.setExpression("bean(*Service)");
+//        return pointcut;
+//    }
 
 //    @Bean(name = "userService")
 //    public ProxyFactoryBean proxyFactoryBean() {
