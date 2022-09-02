@@ -13,7 +13,8 @@ public class DaoFactory {
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
 
-        dataSource.setJdbcUrl("jdbc:h2:tcp://localhost/~/tobyspring");
+        dataSource.setJdbcUrl("jdbc:h2:tcp://localhost/~/tobyspring;MODE=MySQL");
+//        dataSource.setJdbcUrl("jdbc:h2:mem:testdb;MODE=MySQL");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
 

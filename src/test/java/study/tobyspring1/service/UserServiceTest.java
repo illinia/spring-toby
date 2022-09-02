@@ -9,7 +9,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import study.tobyspring1.dao.UserDao;
 import study.tobyspring1.domain.Level;
 import study.tobyspring1.domain.User;
@@ -33,6 +37,8 @@ class UserServiceTest {
     UserService testUserService;
     @Autowired
     UserDao userDao;
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     List<User> users;
 
@@ -74,13 +80,6 @@ class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() throws Exception {
-//        TestUserServiceImpl testUserService = new TestUserServiceImpl(users.get(3).getId());
-//        testUserService.setUserDao(userDao);
-//        testUserService.setMailSender(mailSender);
-//
-//        ProxyFactoryBean txProxyFactoryBean = context.getBean("&userService", ProxyFactoryBean.class);
-//        txProxyFactoryBean.setTarget(testUserService);
-//        UserService txUserService = (UserService) txProxyFactoryBean.getObject();
 
         userDao.deleteAll();
         for (User user : users) {
@@ -165,6 +164,26 @@ class UserServiceTest {
         else {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    public void transactionSync() {
+//        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
+//        txDefinition.setReadOnly(true);
+//        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
+
+//        try {
+
+//        userService.deleteAll();
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
+
+        userService.add(users.get(0));
+        userService.add(users.get(1));
+
+//        transactionManager.rollback(txStatus);
     }
 
     private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {

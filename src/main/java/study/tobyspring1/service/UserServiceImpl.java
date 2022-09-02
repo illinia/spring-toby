@@ -12,7 +12,6 @@ import study.tobyspring1.domain.User;
 import java.util.List;
 
 @Service("userService")
-@Transactional
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
@@ -62,6 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteAll() {
         userDao.deleteAll();
+//        throw new RuntimeException();
     }
 
     @Override
