@@ -1,22 +1,25 @@
-package study.tobyspring1.service;
+package study.tobyspring1.user.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import study.tobyspring1.dao.UserDao;
-import study.tobyspring1.domain.Level;
-import study.tobyspring1.domain.User;
+import study.tobyspring1.AppContext;
+import study.tobyspring1.TestAppContext;
+import study.tobyspring1.user.dao.UserDao;
+import study.tobyspring1.user.domain.Level;
+import study.tobyspring1.user.domain.User;
+import study.tobyspring1.user.service.UserService;
+import study.tobyspring1.user.service.UserServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,21 +27,31 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static study.tobyspring1.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
-import static study.tobyspring1.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
+import static study.tobyspring1.user.service.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static study.tobyspring1.user.service.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 @SpringBootTest
-@Import(UserServiceTestConfiguration.class)
-class UserServiceTest {
+@Transactional
+@ActiveProfiles("test")
+@Import(TestAppContext.class)
+//@ContextConfiguration(classes = {AppContext.class, TestAppContext.class})
+public class UserServiceTest {
 
     @Autowired
     UserService userService;
     @Autowired
-    UserService testUserService;
+    TestUserService testUserService;
     @Autowired
     UserDao userDao;
     @Autowired
-    PlatformTransactionManager transactionManager;
+    DefaultListableBeanFactory bf;
+
+    @Test
+    public void beans() {
+        for (String n : bf.getBeanDefinitionNames()) {
+            System.out.println(n + " \t " + bf.getBean(n).getClass().getName());
+        }
+    }
 
     List<User> users;
 
@@ -60,8 +73,6 @@ class UserServiceTest {
 
     @Test
     public void add() {
-        userDao.deleteAll();
-
         User userWithLevel = users.get(4);
         User userWithoutLevel = users.get(0);
         userWithoutLevel.setLevel(null);
@@ -80,15 +91,13 @@ class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() throws Exception {
-
-        userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
 
         try {
             this.testUserService.upgradeLevels();
-            fail("TestUserServiceException expected");
+//            fail("TestUserServiceException expected");
         } catch (TestUserServiceException e) {
             System.out.println("upgradeAllOrNothing " + e);
         }
@@ -166,42 +175,21 @@ class UserServiceTest {
         }
     }
 
-    @Test
-    @Transactional(readOnly = true)
-    public void transactionSync() {
-//        DefaultTransactionDefinition txDefinition = new DefaultTransactionDefinition();
-//        txDefinition.setReadOnly(true);
-//        TransactionStatus txStatus = transactionManager.getTransaction(txDefinition);
-
-//        try {
-
-//        userService.deleteAll();
-//        } catch (Exception e) {
-//            System.out.println(e);
-//        }
-
-        userService.add(users.get(0));
-        userService.add(users.get(1));
-
-//        transactionManager.rollback(txStatus);
-    }
-
     private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
         assertThat(updated.getId()).isEqualTo(expectedId);
         assertThat(updated.getLevel()).isEqualTo(expectedLevel);
     }
 
-    static class TestUserService extends UserServiceImpl {
+    public static class TestUserService extends UserServiceImpl {
         private String id = "test2";
 
         @Override
         protected void upgradeLevel(User user) {
-            super.upgradeLevel(user);
             if (user.getId().equals(this.id)) throw new TestUserServiceException();
+            super.upgradeLevel(user);
         }
 
         @Override
-        @Transactional(readOnly = true)
         public List<User> getAll() {
             for (User user: super.getAll()) {
                 super.update(user);

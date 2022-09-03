@@ -1,7 +1,6 @@
-package study.tobyspring1.service;
+package study.tobyspring1.user.service;
 
-import org.springframework.transaction.annotation.Transactional;
-import study.tobyspring1.domain.User;
+import study.tobyspring1.user.domain.User;
 
 import java.util.List;
 

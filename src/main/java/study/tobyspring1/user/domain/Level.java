@@ -1,4 +1,4 @@
-package study.tobyspring1.domain;
+package study.tobyspring1.user.domain;
 
 public enum Level {
     GOLD(3, null), SILVER(2, GOLD), BASIC(1, SILVER);

@@ -1,4 +1,4 @@
-package study.tobyspring1.domain;
+package study.tobyspring1.user.domain;
 
 import lombok.*;
 

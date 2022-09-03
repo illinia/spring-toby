@@ -1,13 +1,13 @@
-package study.tobyspring1.service;
+package study.tobyspring1.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import study.tobyspring1.dao.UserDao;
-import study.tobyspring1.domain.Level;
-import study.tobyspring1.domain.User;
+import study.tobyspring1.user.dao.UserDao;
+import study.tobyspring1.user.domain.Level;
+import study.tobyspring1.user.domain.User;
 
 import java.util.List;
 

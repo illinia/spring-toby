@@ -1,17 +1,18 @@
-package study.tobyspring1.dao;
+package study.tobyspring1.user.dao;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
-import study.tobyspring1.domain.Level;
-import study.tobyspring1.domain.User;
+import study.tobyspring1.AppContext;
+import study.tobyspring1.user.dao.UserDaoJdbc;
+import study.tobyspring1.user.domain.Level;
+import study.tobyspring1.user.domain.User;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -20,10 +21,12 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("test")
+//@ContextConfiguration(classes = AppContext.class)
 class UserDaoTest {
 
     @Autowired
-    private UserDaoJdbc dao;
+    private UserDao dao;
     private User user1;
     private User user2;
     private User user3;

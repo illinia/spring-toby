@@ -1,19 +1,23 @@
-package study.tobyspring1.dao;
+package study.tobyspring1.user.dao;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import study.tobyspring1.domain.Level;
-import study.tobyspring1.domain.User;
+import study.tobyspring1.user.domain.Level;
+import study.tobyspring1.user.domain.User;
+import study.tobyspring1.user.sqlservice.SqlService;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 
+@Repository
+@RequiredArgsConstructor
 public class UserDaoJdbc implements UserDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final SqlService sqlService;
 
     private RowMapper<User> userMapper = new RowMapper<User>() {
         @Override
@@ -30,14 +34,12 @@ public class UserDaoJdbc implements UserDao {
         }
     };
 
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
 
     public void add(final User user) {
 //        try {
-            this.jdbcTemplate.update("insert into users(id, name, password, level, login, recommend, email) " +
-                            " values(?,?,?,?,?,?,?)",
+        this.jdbcTemplate.update(
+//                    this.sqlMap.get("add"),
+                this.sqlService.getSql("userAdd"),
                 user.getId(), user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail());
 //        } catch (DuplicateKeyException e) {
 //            throw new DuplicateUserIdException(e);
@@ -45,31 +47,45 @@ public class UserDaoJdbc implements UserDao {
     }
 
     public User get(String id) {
-        return this.jdbcTemplate.queryForObject("select * from users where id = ?",
+        return this.jdbcTemplate.queryForObject(
+//                this.sqlMap.get("get"),
+                this.sqlService.getSql("userGet"),
                 new Object[]{id}, this.userMapper);
     }
 
+    public List<User> getAll() {
+        return this.jdbcTemplate.query(
+//                this.sqlMap.get("getAll")
+                this.sqlService.getSql("userGetAll")
+                , this.userMapper);
+    }
+
+
     public void deleteAll() {
-        this.jdbcTemplate.update("delete from users");
+        this.jdbcTemplate.update(
+//                this.sqlMap.get("deleteAll")
+                this.sqlService.getSql("userDeleteAll")
+        );
     }
 
     public int getCount() {
-        return this.jdbcTemplate.queryForObject("select count(*) from users", Integer.class);
+        return this.jdbcTemplate.queryForObject(
+//                this.sqlMap.get("getCount")
+                this.sqlService.getSql("userGetCount")
+                , Integer.class);
     }
 
     @Override
     public void update(User user) {
         System.out.println("Dao update");
         this.jdbcTemplate.update(
-                "update users set name = ?, password = ?, level = ?, login = ?, " +
-                    "recommend = ?, email = ? where id = ?", user.getName(), user.getPassword(),
+//                this.sqlMap.get("update"),
+                this.sqlService.getSql("userUpdate"),
+                user.getName(), user.getPassword(),
                 user.getLevel().intValue(), user.getLogin(), user.getRecommend(), user.getEmail(), user.getId()
         );
     }
 
-    public List<User> getAll() {
-        return this.jdbcTemplate.query("select * from users order by id", this.userMapper);
-    }
 
 }
 

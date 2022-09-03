@@ -1,6 +1,6 @@
-package study.tobyspring1.dao;
+package study.tobyspring1.user.dao;
 
-import study.tobyspring1.domain.User;
+import study.tobyspring1.user.domain.User;
 
 import java.util.List;
 
